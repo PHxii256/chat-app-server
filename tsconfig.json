@@ -4,6 +4,7 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "forceConsistentCasingInFileNames": true,
+        "lib": ["es2022", "esnext.array", "esnext.asynciterable"]
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]

@@ -1,8 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 
 const userSchema = new Schema({
-    username : {type: String, required : true},
-    email : {type: String, unique: true}, //change to required: true later
+    username : {type: String, required : true, unique: true},
+    email : {type: String, unique: true, required: false}, //change to true in production
     profilePic : {type:String}
 });
 

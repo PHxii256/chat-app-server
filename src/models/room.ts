@@ -1,13 +1,13 @@
 import mongoose, { Schema } from "mongoose";
+import Message from "./message";
+import User from "./user";
 
 const roomSchema = new Schema({
     name : { type: String },
+    code : { type: String, unique: true , required: true },
     description : { type: String },
-    members : [{
-        userId: { type: Schema.Types.ObjectId, ref: "User" },
-        username: { type: String },
-        profilePic: { type: String }
-    }]
+    members : [User.schema],
+    messages: [Message.schema]
 })
 
 const Room = mongoose.model("Room", roomSchema);

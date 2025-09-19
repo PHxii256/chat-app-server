@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md m-4">
+        <h1 class="text-2xl font-bold mb-4 text-center">WebSocket Test Client</h1>
+        <div id="messages" class="h-64 overflow-y-auto mb-4 p-2 border border-gray-300 rounded-lg bg-gray-50">
+            <!-- Messages will be displayed here -->
+        </div>
+        <div class="flex space-x-2">
+            <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button id="sendButton" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors">Send</button>
+        </div>
+        <div id="status" class="mt-4 text-center text-sm">
+            <!-- Connection status will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Socket.IO client library -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        // Connect to the WebSocket server running on localhost:3000
+        const socket = io('http://localhost:3000');
+
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const statusDiv = document.getElementById('status');
+
+        // Display connection status
+        socket.on('connect', () => {
+            console.log('Connected to the server!');
+            statusDiv.textContent = 'Status: Connected';
+            statusDiv.classList.remove('text-red-500');
+            statusDiv.classList.add('text-green-500');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from the server!');
+            statusDiv.textContent = 'Status: Disconnected';
+            statusDiv.classList.remove('text-green-500');
+            statusDiv.classList.add('text-red-500');
+        });
+
+        // Listen for 'chat-message' events from the server
+        socket.on('chat-message', (msg) => {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = msg;
+            messageElement.className = "p-1";
+            messagesDiv.appendChild(messageElement);
+            // Scroll to the bottom of the message container
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // Handle sending a message when the button is clicked
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value.trim();
+            if (message) {
+                // Emit a 'chat-message' event to the server
+                socket.emit('chat-message', message);
+                messageInput.value = ''; // Clear the input field
+            }
+        });
+
+        // Allow sending with the 'Enter' key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+    </script>
+</body>
+</html>
