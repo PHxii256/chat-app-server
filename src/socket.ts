@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
   });
 
   // Handle chat messages
-  socket.on("chat-message", async ({ content , username , type = "text" }) => {
+  socket.on("chat-message", async ({ content , username , type = "text" , replyTo}) => {
     const user = users[socket.id];
     if (user && user.roomCode) {
 
@@ -52,6 +52,7 @@ io.on("connection", (socket) => {
         username,
         content,
         type,
+        replyTo,
         createdAt: Date.now()
       });
 
@@ -69,6 +70,7 @@ io.on("connection", (socket) => {
                 senderId: socket.id,
                 username: username,
                 content: content,
+                replyTo: replyTo,
                 type: type
               }
             }

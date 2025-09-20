@@ -7,7 +7,11 @@ const messageSchema = new Schema({
     content: { type: String, required: true },
     type: { type: String , default: "text"},
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    replyTo: {
+        messageId: { type: String, required: true},
+        content: { type: String, required: true },
+    }
 });
 
 const Message = model("Message", messageSchema);
