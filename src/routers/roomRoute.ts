@@ -68,6 +68,8 @@ router.delete("/:code/deleteMsg/:msgId", async (req, res) => {
       "messages._id": msgId
     },
     { $pull: { messages: { _id: msgId } } });
+    
+    console.log(result);
     if (result.modifiedCount === 0) {
       return res.status(404).send("Message or Room not found");
     } else {

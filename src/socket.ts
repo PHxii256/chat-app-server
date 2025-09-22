@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from "socket.io";
 import Room from "./models/room";
-import Message from "./models/message";
+import mongoose from "mongoose";
 
 let io: SocketIOServer | undefined = undefined;
 
@@ -47,18 +47,20 @@ io.on("connection", (socket) => {
     if (user && user.roomCode) {
 
       //update to use the message model
-      const message = new Message({
+      const messageId = new mongoose.Types.ObjectId();
+      const messageData = {
+        _id: messageId,
         senderId: socket.id,
         username,
         content,
         type,
         replyTo,
         createdAt: Date.now()
-      });
+      };
 
-      console.log("Message to be saved:", JSON.stringify(message.toJSON()));
+      console.log("Message to be saved:", JSON.stringify(messageData));
 
-      io!.to(user.roomCode).emit("chat-message", JSON.stringify(message.toJSON()));
+      io!.to(user.roomCode).emit("chat-message", JSON.stringify(messageData));
 
       // Save message to the room's messages array
       try {
@@ -66,13 +68,7 @@ io.on("connection", (socket) => {
           { code: user.roomCode },
           {
             $push: {
-              messages: {
-                senderId: socket.id,
-                username: username,
-                content: content,
-                replyTo: replyTo,
-                type: type
-              }
+              messages: messageData
             }
           },
           { upsert: true }
