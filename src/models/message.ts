@@ -11,7 +11,13 @@ const messageSchema = new Schema({
     replyTo: {
         messageId: { type: String, required: true},
         content: { type: String, required: true },
-    }
+    },
+    reactions: [{
+    emoji: { type: String, required: true },
+    senderUsername: { type: String, required: true },
+    senderId: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now }
+    }]
 });
 
 const Message = model("Message", messageSchema);

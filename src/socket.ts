@@ -101,6 +101,61 @@ io.on("connection", (socket) => {
   }
 });
 
+  socket.on("message-reaction", async ({ messageId, roomCode, emoji, senderUsername, action, timestamp }) => {
+    console.log(`Reaction ${action}: ${emoji} on message ${messageId} by ${senderUsername}`);
+    
+    try {
+      const reaction = {
+        emoji,
+        senderUsername,
+        senderId: socket.id,
+        timestamp: new Date(timestamp)
+      };
+
+      console.log(`Attempting to ${action} reaction:`, reaction);
+
+      let result;
+      if (action === 'add') {
+        // First remove any existing reaction with same emoji and user to ensure only one per user
+        const removeResult = await Room.updateOne(
+          { code: roomCode, "messages._id": messageId },
+          { $pull: { "messages.$.reactions": { emoji, senderUsername: senderUsername } } }
+        );
+        console.log(`Remove existing reaction result:`, removeResult);
+        
+        // Then add the new reaction
+        result = await Room.updateOne(
+          { code: roomCode, "messages._id": messageId },
+          { $push: { "messages.$.reactions": reaction } }
+        );
+        console.log(`Add reaction result:`, result);
+      } else if (action === 'remove') {
+        // Remove reaction from the message's reactions array
+        result = await Room.updateOne(
+          { code: roomCode, "messages._id": messageId },
+          { $pull: { "messages.$.reactions": { emoji, senderUsername: senderUsername } } }
+        );
+        console.log(`Remove reaction result:`, result);
+      }
+
+      if (result && result.modifiedCount > 0) {
+        // Broadcast the reaction update to all users in the room
+        io!.to(roomCode).emit("message-reaction", JSON.stringify({
+          messageId,
+          emoji,
+          senderUsername,
+          senderId: socket.id,
+          action,
+          timestamp
+        }));
+        console.log(`Reaction ${action} successful`);
+      } else {
+        console.log(`Reaction ${action} failed - message not found, res: ${JSON.stringify(result)}`);
+      }
+    } catch (error) {
+      console.error("Error processing reaction:", error);
+    }
+  });
 
   // Handle disconnect
   socket.on("disconnect", () => {
