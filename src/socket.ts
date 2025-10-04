@@ -156,7 +156,7 @@ io.on("connection", (socket) => {
       console.error("Error processing reaction:", error);
     }
   });
-
+ 
   // Handle disconnect
   socket.on("disconnect", () => {
     const user = users[socket.id];

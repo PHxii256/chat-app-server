@@ -1,8 +1,9 @@
 import express from "express";
 import Room from "../models/room";
+import { authenticateToken } from "../utils/jwt";
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/", authenticateToken , (req, res) => {
   res.send("Welcome to the Chat App!");
 });
 
